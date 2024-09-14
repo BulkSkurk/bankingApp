@@ -24,9 +24,6 @@ public class RemoveBox {
         for (String transaction : transactionList) {
             transactions.getItems().add(new StringBuilder(transaction));
         }
-        //TODO - This works, It adds the text to different instances in the combo box. Cool.
-        //TODO - Now we need to map the transaction to the text to remove it.
-        //TODO - Just Remove the String, append to string and save to the userAccount class.
 
         transactions.setMinWidth(256);
 
@@ -40,7 +37,7 @@ public class RemoveBox {
                 StringBuilder trimmedString = transactions.getValue().delete(0,8);
                 int dIndex = trimmedString.indexOf("D");
                 int colonIndex = trimmedString.indexOf(":");
-                trimmedString = trimmedString.delete(dIndex-3,colonIndex);
+                trimmedString.delete(dIndex-3,colonIndex);
 
                 String[] testArray = trimmedString.toString().split(":",2);
                 String modulatedString = testArray[1] + "|" + testArray[0];

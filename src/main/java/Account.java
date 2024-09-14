@@ -9,9 +9,9 @@ import java.util.*;
 public class Account {
 
     private double currentBalance;
-    private String accountHolder;
-    private ArrayList<Transaction> transactions;
-    private DateTimeFormatter dateFormat;
+    private final String accountHolder;
+    private final ArrayList<Transaction> transactions;
+    private final DateTimeFormatter dateFormat;
 
     Account(int currentBalance, String accountHolder) {
         this.currentBalance = currentBalance;

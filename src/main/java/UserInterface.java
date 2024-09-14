@@ -125,11 +125,29 @@ public class UserInterface extends Application {
 
 
         //Main menu bar
+        VBox topContainer = new VBox();
+        topContainer.setMinWidth(1024);
+
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu,accountMenu,sortMenu);
+        menuBar.setMinWidth(1024);
+
+        HBox topCssBar = new HBox();
+        topCssBar.setMinHeight(40);
+        topCssBar.setStyle("-fx-background-color: darkgreen;");
+
+        Label topBarText = new Label("Adam Bank - Pengar, vilka pengar?");
+        topBarText.setStyle("-fx-text-fill: white; -fx-font-family: 'Arial'; -fx-font-size: 20px; -fx-font-weight: bold; -fx-font-style: italic;");
+        topBarText.setPadding(new Insets(10,0,0,10));
+
+        topCssBar.getChildren().add(topBarText);
+
+        topContainer.getChildren().addAll(menuBar,topCssBar);
+
+        layout.setTop(topContainer);
 
 
-        layout.setTop(menuBar);
+        //layout.setTop(menuBar);
 
         //Skapar mittendelen av konsolen
         transactions = new TextArea();
@@ -144,12 +162,13 @@ public class UserInterface extends Application {
 
         VBox centerRightPane = new VBox(10);
         Label yearLabel = new Label(" Year");
+        yearLabel.setTranslateY(15);
         Label monthLabel = new Label("Month");
-        monthLabel.setTranslateY(10);
+        monthLabel.setTranslateY(30);
         Label weekLabel = new Label(" Week");
-        weekLabel.setTranslateY(20);
+        weekLabel.setTranslateY(40);
         Label dayLabel = new Label("  Day");
-        dayLabel.setTranslateY(30);
+        dayLabel.setTranslateY(50);
 
         centerRightPane.getChildren().addAll(yearLabel,monthLabel,weekLabel,dayLabel);
         centerRightPane.setPadding(new Insets(20));
