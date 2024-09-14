@@ -26,11 +26,6 @@ public class Account {
         transactions.add(transaction);
     }
 
-    public void printAccountBalance() {
-        //Testfunktion - Ta bort sedan
-        System.out.println("Account Holder:" + accountHolder + " Current Balance:" + getAccountCurrentBalance());
-    }
-
     public double getAccountCurrentBalance() {
         //Loopar igenom samtliga transactions i Arraylist och uppdaterar currentBalance.
         currentBalance = 0; //Återställer värdet till 0, om vi inte gör det så kommer Sum beräkningen i UI att lägga på numret varje gång.
@@ -39,7 +34,8 @@ public class Account {
         }
         return currentBalance;
     }
-    public String getAccountHolder(){
+
+    public String getAccountHolder() {
         return this.accountHolder;
     }
 
@@ -52,7 +48,8 @@ public class Account {
         }
         return output;
     }
-    public void dateSorter(String sorting){
+
+    public void dateSorter(String sorting) {
         switch (sorting) {
             case "desc" ->
                     transactions.sort((o1, o2) -> o2.getDateOfTransaction().compareTo(o1.getDateOfTransaction()));
@@ -60,8 +57,9 @@ public class Account {
         }
     }
 
-    public StringBuilder dateStringSorter(String input, String type){
+    public StringBuilder dateStringSorter(String input, String type) {
         StringBuilder output = new StringBuilder();
+
         for (Transaction transaction : transactions) {
             if (transaction.getDateOfTransaction().getYear() == Integer.parseInt(input) && type.equalsIgnoreCase("year")) {
                 output.append("Amount: ").append(transaction.getTransactionAmount()).append(" - Date Made: ").append(transaction.getDateOfTransaction().format(dateFormat)).append("\n");
@@ -82,7 +80,7 @@ public class Account {
 
     public void saveTransactionsToFile() {
         try {
-            //Sparar info ifrån enstaka Transaktioner med ett "-" för att hjälpa parsing när vi laddar ifrån filen.
+            //Sparar info ifrån enstaka Transaktioner med ett "|" för att hjälpa parsing när vi laddar ifrån filen.
             PrintWriter writer = new PrintWriter("accountInfo.dat");
             for (Transaction transaction : transactions) {
                 writer.println(transaction.getDateOfTransaction().format(dateFormat) + "|" + transaction.getTransactionAmount());
@@ -92,10 +90,11 @@ public class Account {
             System.out.println("File not found");
         }
     }
-    public Set<Integer> getTransactionDateValues(String searchTerm){
+
+    public Set<Integer> getTransactionDateValues(String searchTerm) {
         Set<Integer> searchFilterTerm = new TreeSet<>();
 
-        for (Transaction transaction : transactions){
+        for (Transaction transaction : transactions) {
             switch (searchTerm) {
                 case "year" -> searchFilterTerm.add(transaction.getDateOfTransaction().getYear());
                 case "month" -> searchFilterTerm.add(transaction.getDateOfTransaction().getMonthValue());
@@ -127,5 +126,19 @@ public class Account {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeTransaction(String lineToRemove) {
+        //Iterator kan ta bort objekt utan att orsaka errors medans den loopar.
+        Iterator<Transaction> iterator = transactions.iterator();
+        while (iterator.hasNext()) {
+            Transaction transaction = iterator.next();
+            String transactionLine = transaction.getDateOfTransaction().format(dateFormat) + "|" + transaction.getTransactionAmount();
+            if (lineToRemove.equalsIgnoreCase(transactionLine)) {
+                iterator.remove();
+                break;
+            }
+        }
+        saveTransactionsToFile();
     }
 }

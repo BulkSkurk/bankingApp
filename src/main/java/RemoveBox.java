@@ -7,6 +7,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 
+
 public class RemoveBox {
     public static void display(Account userAccount){
         Stage window = new Stage();
@@ -34,10 +35,21 @@ public class RemoveBox {
 
         removeButton.setOnAction(e -> {
             try {
-                System.out.println(transactions.getValue());
+
+                //Build string into correct format
+                StringBuilder trimmedString = transactions.getValue().delete(0,8);
+                int dIndex = trimmedString.indexOf("D");
+                int colonIndex = trimmedString.indexOf(":");
+                trimmedString = trimmedString.delete(dIndex-3,colonIndex);
+
+                String[] testArray = trimmedString.toString().split(":",2);
+                String modulatedString = testArray[1] + "|" + testArray[0];
+
+                //Remove transaction from list
+                userAccount.removeTransaction(modulatedString.trim());
                 window.close();
             } catch (Exception ex) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "How did you manage this?");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose an option!");
                 alert.showAndWait();
             }
         });

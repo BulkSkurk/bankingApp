@@ -20,11 +20,14 @@ public class UserInterface extends Application {
     Date currentDate;
     Account userAccount;
     TextArea accountBalanceSum;
+
+    Button clearFilterButton;
     ComboBox<Integer> yearDropDown;
     ComboBox<Integer> monthDropDown;
     ComboBox<Integer> weekDropDown;
     ComboBox<Integer> dayDropDown;
     ComboBox<String> incomeSpendingDropDown;
+
 
 
     public void startUserInterface(String[] args) {
@@ -54,7 +57,7 @@ public class UserInterface extends Application {
         Menu sortMenu = new Menu("Sort _Transactions");
         //Menu items
         MenuItem saveItem = new MenuItem("Save");
-        saveItem.setOnAction(e -> saveTransactions());
+        saveItem.setOnAction(e -> updateLabelsAndSave());
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.setOnAction(e -> closeProgram());
 
@@ -93,14 +96,21 @@ public class UserInterface extends Application {
         dayDropDown = new ComboBox<>();
         setComboBoxValues(dayDropDown,"day");
 
-        //Choose income or spending
+        //Rensar alla combo boxes
+        clearFilterButton = new Button("Clear Filters");
+        clearFilterButton.setOnAction(e -> setAllFilterComboBoxValuesAndNull());
+        clearFilterButton.setMinWidth(100);
+
+        //Väljer income eller spending
         Label incomeSpendingLabel = new Label("Show Only\nIncome or Spending");
         incomeSpendingLabel.setTranslateX(-10);
 
         incomeSpendingDropDown = new ComboBox<>();
-        incomeSpendingDropDown.getItems().addAll("Income","Spending","Both");
+        incomeSpendingDropDown.getItems().addAll("Income","Spending");
         incomeSpendingDropDown.setMinWidth(100);
-        incomeSpendingDropDown.setPromptText("Both");
+        incomeSpendingDropDown.setPromptText("Income/Spending");
+        incomeSpendingDropDown.setOnAction(e -> updateTextArea());
+        incomeSpendingDropDown.setDisable(true);
 
         Label accountBalanceLabel = new Label("Account Balance");
         accountBalanceLabel.setTranslateX(-10);
@@ -121,14 +131,14 @@ public class UserInterface extends Application {
 
         layout.setTop(menuBar);
 
-        //Create middle part to display transactions
+        //Skapar mittendelen av konsolen
         transactions = new TextArea();
         transactions.setEditable(false);
         transactions.setWrapText(true);
 
-        //Setting right side panel
+        //Sätter den högra delen
         VBox rightSidePane = new VBox(10);
-        rightSidePane.getChildren().addAll(showLabel,yearDropDown,monthDropDown,weekDropDown,dayDropDown);
+        rightSidePane.getChildren().addAll(clearFilterButton,showLabel,yearDropDown,monthDropDown,weekDropDown,dayDropDown);
         rightSidePane.setPadding(new Insets(20));
         rightSidePane.setAlignment(Pos.CENTER_RIGHT);
 
@@ -158,7 +168,7 @@ public class UserInterface extends Application {
         rightContainer.setPadding(new Insets(20));
         layout.setRight(rightContainer);
 
-        //Padding around TextArea and StackPane
+        //Padding runt TextArea och StackPane
         StackPane centerPane = new StackPane(transactions);
         centerPane.setPadding(new Insets(20));
         centerPane.setMaxSize(650,384);
@@ -166,7 +176,7 @@ public class UserInterface extends Application {
         centerPane.setTranslateY(50);
         layout.setCenter(centerPane);
 
-        //Initial sorting
+        //Första sorteringen av data
         setAccountText("asc",false);
 
         Scene scene = new Scene(layout, 1024, 512);
@@ -203,7 +213,36 @@ public class UserInterface extends Application {
     }
     private void updateTextArea(int input, String type){
         transactions.setText("Transaction History for: " + userAccount.getAccountHolder() + " Showing only Transactions in " + type + " " + input + "\n\n" + userAccount.dateStringSorter(String.valueOf(input),type));
+        incomeSpendingDropDown.setDisable(false);
         updateButtonLabels(type);
+    }
+    private void updateTextArea(){
+        String transactionText = transactions.getText();
+        String[] lines = transactionText.split("\n");
+        StringBuilder filteredText = new StringBuilder();
+
+        if (incomeSpendingDropDown.getValue() != null) {
+
+            if (incomeSpendingDropDown.getValue().equalsIgnoreCase("income")) {
+                for (String line : lines) {
+                    if (!line.contains("Amount: -")) {
+                        filteredText.append(line).append("\n");
+                    }
+                }
+                transactions.setText(filteredText.toString());
+            }
+            if (incomeSpendingDropDown.getValue().equalsIgnoreCase("spending")) {
+                for (String line : lines) {
+                    if (line.contains("Amount: -")) {
+                        filteredText.append(line).append("\n");
+                    }
+                }
+                transactions.setText(filteredText.toString());
+            }
+        } else {
+            transactions.setText("No transactions found!");
+        }
+        incomeSpendingDropDown.setDisable(true);
     }
     private void updateButtonLabels(String type){
 
@@ -220,18 +259,19 @@ public class UserInterface extends Application {
             dayDropDown.getSelectionModel().clearSelection();
         }
     }
-    private void saveTransactions(){
+    private void updateLabelsAndSave(){
         userAccount.saveTransactionsToFile();
         setAccountText("asc",true);
         setAccountBalanceSum();
+        setAllFilterComboBoxValues();
     }
     private void setAccountBalanceSum(){
         accountBalanceSum.setText("$" + userAccount.getAccountCurrentBalance());
     }
     private void setRemoveTransaction(){
-        //TODO We work here!
         RemoveBox.display(userAccount);
         setAccountText("asc",false);
+        setAccountBalanceSum();
         setAllFilterComboBoxValues();
     }
     private void setComboBoxValues(ComboBox<Integer> boxName, String dateType){
@@ -241,9 +281,22 @@ public class UserInterface extends Application {
         boxName.setOnAction(e -> setFiltering(boxName.getValue(),dateType));
     }
     private void setAllFilterComboBoxValues(){
+        yearDropDown.getItems().clear();
+        monthDropDown.getItems().clear();
+        weekDropDown.getItems().clear();
+        dayDropDown.getItems().clear();
         setComboBoxValues(yearDropDown, "year");
         setComboBoxValues(monthDropDown, "month");
         setComboBoxValues(weekDropDown, "week");
         setComboBoxValues(dayDropDown, "day");
     }
+    private void setAllFilterComboBoxValuesAndNull(){
+        yearDropDown.setValue(null);
+        monthDropDown.setValue(null);
+        weekDropDown.setValue(null);
+        dayDropDown.setValue(null);
+        incomeSpendingDropDown.setValue(null);
+        incomeSpendingDropDown.setDisable(true);
+    }
+
 }
